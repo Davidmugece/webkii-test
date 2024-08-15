@@ -13,10 +13,14 @@ exports.handler = async function(event, context) {
       body: 'URL parameter is required',
     };
   }
-
   try {
     const response = await fetch(url);
-    const data = await response.text();
+    let data = await response.text();
+
+    // Convert relative URLs to absolute URLs
+    const baseUrl = new URL(url);
+    data = data.replace(/(href|src)="(\/[^"]*)"/g, `$1="${baseUrl.origin}$2"`);
+
     return {
       statusCode: 200,
       headers: {
